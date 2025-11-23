@@ -1,17 +1,18 @@
-import time
 import functools
+import time
 from contextlib import contextmanager
-from typing import Optional, Dict, Any, List, Union
+from typing import Optional, Any, List, Union, Tuple
 
 import mysql.connector
-from mysql.connector import errorcode
-import pyodbc
 import pandas as pd
+import pyodbc
+from mysql.connector import errorcode
 from sqlalchemy import create_engine
 
-from multi_data_manager.core.logger import logger
 from multi_data_manager.core.exceptions import DatabaseError
+from multi_data_manager.core.logger import logger
 from multi_data_manager.utils.data_analyzer import DataAnalyzer
+
 
 def retry_on_lock_error(retries=3, delay=2):
     def decorator(func):
@@ -30,8 +31,12 @@ def retry_on_lock_error(retries=3, delay=2):
                         raise DatabaseError(f"MySQL error: {error}")
                 except Exception as e:
                     raise DatabaseError(f"Database error: {e}")
+            return None
+
         return wrapper
+
     return decorator
+
 
 class SQLHelper:
     """
@@ -103,13 +108,14 @@ class SQLHelper:
                 logger.error(f"Error closing connection: {e}")
 
     @retry_on_lock_error()
-    def execute_query(self, query: str, params: Optional[Union[List, Tuple]] = None, execute_many: bool = False, batch_size: int = 100000) -> Optional[List[Any]]:
+    def execute_query(self, query: str, params: Optional[Union[List, Tuple]] = None, execute_many: bool = False,
+                      batch_size: int = 100000) -> Optional[List[Any]]:
         rows = None
         try:
             with self.get_cursor() as cursor:
                 if self.db_type == self.DB_MYSQL:
-                     cursor.execute(f'USE {self.connection_info.database};')
-                
+                    cursor.execute(f'USE {self.connection_info.database};')
+
                 if params:
                     if execute_many:
                         for i in range(0, len(params), batch_size):
@@ -119,14 +125,14 @@ class SQLHelper:
                         cursor.execute(query, params)
                 else:
                     cursor.execute(query)
-                
+
                 if cursor.description:
                     rows = cursor.fetchall()
         except Exception as e:
             self.get_connection().rollback()
             logger.error(f"Error executing query: {query} - {e}")
             raise DatabaseError(f"Query execution failed: {e}")
-        
+
         return rows
 
     @retry_on_lock_error()
@@ -134,11 +140,11 @@ class SQLHelper:
         try:
             with self.get_cursor() as cursor:
                 cursor.execute(f'DROP TABLE IF EXISTS `{table_name}`;')
-                
+
                 table_columns, table_indexes = DataAnalyzer.extract_table_info(json_file_name, node)
                 needed_columns = ', '.join([f'{col} {col_type}' for col, col_type in table_columns.items()])
                 needed_indexes = ', '.join([f'INDEX ({index})' for index in table_indexes]) if table_indexes else ''
-                
+
                 query = f'CREATE TABLE `{table_name}` ({needed_columns}' + (
                     f', {needed_indexes}' if needed_indexes else '') + ');'
                 cursor.execute(query)
@@ -165,14 +171,14 @@ class SQLHelper:
     def dataframe_to_table(self, df: pd.DataFrame, table_name: str, if_exists: str = 'replace', index: bool = False):
         try:
             # Using SQLAlchemy engine for pandas to_sql
-             if self.db_type == self.DB_MYSQL:
+            if self.db_type == self.DB_MYSQL:
                 conn_str = (f'mysql+pymysql://{self.connection_info.username}:'
                             f'{self.connection_info.password}@{self.connection_info.host}:'
                             f'3306/{self.connection_info.database}')
                 engine = create_engine(conn_str)
                 df.to_sql(table_name, con=engine, if_exists=if_exists, index=index, method='multi')
-             else:
-                 raise NotImplementedError("dataframe_to_table only implemented for MySQL via SQLAlchemy in this helper")
+            else:
+                raise NotImplementedError("dataframe_to_table only implemented for MySQL via SQLAlchemy in this helper")
         except Exception as e:
             logger.error(f"Error saving dataframe to table: {e}")
             raise DatabaseError(f"DataFrame save failed: {e}")

@@ -1,13 +1,16 @@
-import requests
 from typing import Dict, Any
 
-from multi_data_manager.core.logger import logger
+import requests
+
 from multi_data_manager.core.exceptions import APIError
+from multi_data_manager.core.logger import logger
+
 
 class APIHandler:
     """
     Handler for API interactions.
     """
+
     @staticmethod
     def invoke_api(api_url: str, auth_token: str) -> Dict[str, Any]:
         """

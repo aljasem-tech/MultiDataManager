@@ -1,11 +1,13 @@
 import json
 import threading
+from typing import List, Dict, Any, Optional, Union
+
 import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection, helpers
 from requests_aws4auth import AWS4Auth
-from typing import List, Dict, Any, Optional, Union
 
 from multi_data_manager.core.logger import logger
+
 
 class OpensearchHandler:
     """
@@ -23,7 +25,8 @@ class OpensearchHandler:
                     cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self, host: str, index: str, role_arn: str, region: str = 'eu-central-1', timeout: int = 30, pool_maxsize: int = 20, pool_connections: int = 20):
+    def __init__(self, host: str, index: str, role_arn: str, region: str = 'eu-central-1', timeout: int = 30,
+                 pool_maxsize: int = 20, pool_connections: int = 20):
         if self._initialized:
             return
 
@@ -65,7 +68,8 @@ class OpensearchHandler:
             logger.error(f'Error in OpensearchHandler._close_connection: {e}')
             raise
 
-    def batch_upload(self, documents: Dict, index: Optional[str] = None, recreate_index: bool = False, max_size_mb: int = 10):
+    def batch_upload(self, documents: Dict, index: Optional[str] = None, recreate_index: bool = False,
+                     max_size_mb: int = 10):
         """
         Uploads multiple documents to the OpenSearch index in dynamically sized batches.
         documents must be a dict where the keys are the document IDs.
@@ -133,7 +137,8 @@ class OpensearchHandler:
             logger.error(f'Error in OpensearchHandler.create_index: {e}')
             raise
 
-    def query_index(self, query_body: Dict, index: Optional[str] = None, params: Optional[Dict] = None) -> Union[List[Dict], Any]:
+    def query_index(self, query_body: Dict, index: Optional[str] = None, params: Optional[Dict] = None) -> Union[
+        List[Dict], Any]:
         try:
             index = index or self.index
             response = self.es.search(index=index, body=query_body, params=params)
@@ -175,7 +180,8 @@ class OpensearchHandler:
             logger.error(f'Error in OpensearchHandler.get_document: {e}')
             return None
 
-    def get_documents_fields(self, object_ids: List[str], fields: List[str], index: Optional[str] = None, size: int = 10000) -> Dict[int, Dict]:
+    def get_documents_fields(self, object_ids: List[str], fields: List[str], index: Optional[str] = None,
+                             size: int = 10000) -> Dict[int, Dict]:
         try:
             index = index or self.index
             response = self.es.search(

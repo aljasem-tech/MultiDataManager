@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 from unittest.mock import MagicMock
 
 # Add the current directory to sys.path to ensure we can import the package
@@ -25,12 +25,14 @@ sys.modules['requests.exceptions'] = MagicMock()
 try:
     print("Importing multi_data_manager...")
     import multi_data_manager
+
     print("Success!")
 
     print("Importing core modules...")
     from multi_data_manager.core.logger import logger
     from multi_data_manager.core.exceptions import MultiDataManagerError
     from multi_data_manager.core.constants import MAX_WORKERS
+
     print("Success!")
 
     print("Importing utils...")
@@ -39,11 +41,13 @@ try:
     from multi_data_manager.utils.docs_generator import DocumentationGenerator
     from multi_data_manager.utils.custom_encoder import CustomEncoder
     from multi_data_manager.utils.data_preparer import DataPreparer
+
     print("Success!")
 
     print("Importing database helpers...")
     from multi_data_manager.database.sql_helper import SQLHelper
     from multi_data_manager.database.athena_helper import AthenaHelper
+
     print("Success!")
 
     print("Importing handlers...")
@@ -51,6 +55,7 @@ try:
     from multi_data_manager.handlers.opensearch_handler import OpensearchHandler
     from multi_data_manager.handlers.file_handler import FileHandler
     from multi_data_manager.handlers.api_handler import APIHandler
+
     print("Success!")
 
     print("Testing DataCleaner...")
@@ -64,14 +69,15 @@ try:
     data = {"key": "value"}
     json_str = DataPreparer.prepare_json(data)
     if '"key": "value"' in json_str:
-         print(f"DataPreparer passed: {json_str}")
+        print(f"DataPreparer passed: {json_str}")
     else:
-         print(f"DataPreparer failed: {json_str}")
+        print(f"DataPreparer failed: {json_str}")
 
     print("All checks passed!")
 
 except Exception as e:
     print(f"Verification failed: {e}")
     import traceback
+
     traceback.print_exc()
     sys.exit(1)

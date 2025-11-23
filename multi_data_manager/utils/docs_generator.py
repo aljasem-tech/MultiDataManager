@@ -1,15 +1,16 @@
 import ast
 import os
 import shutil
-import sys
 from typing import Dict, List, Tuple
 
 from multi_data_manager.core.logger import logger
+
 
 class DocumentationGenerator:
     """
     Generates markdown documentation from Python source code.
     """
+
     def __init__(self, root_dir: str, destination_dir: str, read_me_path: str = 'README.md'):
         self.root_dir = root_dir
         self.destination_dir = destination_dir
@@ -37,7 +38,7 @@ class DocumentationGenerator:
             destination_readme_path = os.path.join(self.destination_dir, '../', 'README.md')
             # Ensure parent dir exists
             os.makedirs(os.path.dirname(destination_readme_path), exist_ok=True)
-            
+
             shutil.copyfile(self.read_me_path, destination_readme_path)
             logger.info(f'Copied {self.read_me_path} to {destination_readme_path}')
 
@@ -49,9 +50,6 @@ class DocumentationGenerator:
                 tree = ast.parse(file.read(), filename=file_path)
 
             doc_content = []
-            # Calculate relative path for import style reference
-            # This might need adjustment based on how the library is installed/used
-            # For now, keeping logic similar to original but safer
             rel_path = os.path.relpath(file_path, os.path.dirname(self.root_dir))
             relative_file_path = os.path.splitext(rel_path)[0].replace(os.path.sep, '.')
 

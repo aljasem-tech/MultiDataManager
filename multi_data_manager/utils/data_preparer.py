@@ -1,10 +1,13 @@
 import json
+
 from multi_data_manager.utils.custom_encoder import CustomEncoder
+
 
 class DataPreparer:
     """
     Utility class to prepare data for upload/export.
     """
+
     @staticmethod
     def prepare_json(data, indent=None):
         """

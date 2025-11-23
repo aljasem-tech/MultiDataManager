@@ -1,9 +1,11 @@
+from typing import Any, Optional, List, Tuple, Union
+
 import boto3
 from pyathena import connect
-from typing import Any, Optional, List, Tuple
 
-from multi_data_manager.core.logger import logger
 from multi_data_manager.core.exceptions import DatabaseError
+from multi_data_manager.core.logger import logger
+
 
 class AthenaHelper:
     """
@@ -29,7 +31,7 @@ class AthenaHelper:
     def _establish_connection(self):
         try:
             boto3.setup_default_session(profile_name=self.connection_info.profile)
-            
+
             if self.db_type == self.DB_ATHENA:
                 self.connection = connect(
                     s3_staging_dir=self.connection_info.s3_staging_dir,
@@ -58,8 +60,8 @@ class AthenaHelper:
         Execute a query on Athena.
         """
         if self.db_type != self.DB_ATHENA:
-             raise DatabaseError("execute_query is only supported for Athena in this helper.")
-        
+            raise DatabaseError("execute_query is only supported for Athena in this helper.")
+
         rows = None
         try:
             cursor = self.get_connection().cursor()
@@ -70,5 +72,5 @@ class AthenaHelper:
         except Exception as e:
             logger.error(f"Error executing Athena query: {query} - {e}")
             raise DatabaseError(f"Athena query failed: {e}")
-        
+
         return rows

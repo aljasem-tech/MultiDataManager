@@ -6,7 +6,6 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Initial release of `multi_data_manager`.
-- Consolidated code from `ADASVehiclesToCloud`, `CoverageDashboard`, and `data_operations`.
 - Core modules: `logger`, `exceptions`, `constants`.
 - Database helpers: `SQLHelper`, `AthenaHelper`.
 - Handlers: `S3Handler`, `OpensearchHandler`, `FileHandler`, `APIHandler`.

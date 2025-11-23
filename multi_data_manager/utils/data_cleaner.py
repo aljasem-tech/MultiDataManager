@@ -1,6 +1,7 @@
 import re
 from typing import Optional
 
+
 class DataCleaner:
     """
     Utility class for cleaning string data.

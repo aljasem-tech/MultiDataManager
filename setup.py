@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="multi_data_manager",
-    version="0.2.0",
+    version="0.1.0",
     description="A unified library for data management, database operations, and cloud interactions.",
     author="User",
     packages=find_packages(),
@@ -16,5 +16,5 @@ setup(
         "sqlalchemy",
         "pymysql"
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.9",
 )

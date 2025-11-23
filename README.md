@@ -4,7 +4,9 @@
 ![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](https://github.com/aljasem-tech/MultiDataManager/actions)
 
-A unified Python library for data management, database operations, and cloud interactions. This library consolidates utilities for handling SQL databases (MySQL, SQL Server), AWS services (S3, Athena, OpenSearch), and general data processing.
+A unified Python library for data management, database operations, and cloud interactions. This library consolidates
+utilities for handling SQL databases (MySQL, SQL Server), AWS services (S3, Athena, OpenSearch), and general data
+processing.
 
 ## Installation
 
@@ -15,20 +17,24 @@ pip install .
 ## Features
 
 ### Core
+
 - **Unified Logging**: Standardized logging configuration.
 - **Custom Exceptions**: Clear error handling with library-specific exceptions.
 
 ### Database
+
 - **SQLHelper**: Interact with MySQL and SQL Server databases.
 - **AthenaHelper**: Execute queries on AWS Athena.
 
 ### Handlers
+
 - **S3Handler**: Upload and download files from AWS S3.
 - **OpensearchHandler**: Batch upload and query OpenSearch indices.
 - **FileHandler**: Export data to local JSON files.
 - **APIHandler**: Invoke external APIs with authentication.
 
 ### Utilities
+
 - **DataCleaner**: Clean and sanitize string data.
 - **DataAnalyzer**: Extract schema information from JSON files.
 - **DocumentationGenerator**: Auto-generate markdown documentation from source code.
@@ -68,9 +74,11 @@ os_handler.batch_upload([{'id': 1, 'data': 'test'}])
 ## Development
 
 ### Running Tests
+
 (Add instructions for running tests when available)
 
 ### Generating Documentation
+
 ```python
 from multi_data_manager.utils.docs_generator import DocumentationGenerator
 

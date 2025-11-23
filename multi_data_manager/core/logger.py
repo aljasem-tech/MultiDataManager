@@ -1,6 +1,7 @@
 import logging
 import sys
 
+
 def setup_logger(name: str = "multi_data_manager", level: int = logging.INFO) -> logging.Logger:
     """
     Sets up a logger with a standard configuration.
@@ -18,5 +19,6 @@ def setup_logger(name: str = "multi_data_manager", level: int = logging.INFO) ->
         logger.addHandler(handler)
 
     return logger
+
 
 logger = setup_logger()

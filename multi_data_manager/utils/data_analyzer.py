@@ -1,7 +1,8 @@
-import re
-import json
 import argparse
+import json
+import re
 from typing import Dict, List, Tuple, Any
+
 
 class DataAnalyzer:
     """
@@ -18,7 +19,7 @@ class DataAnalyzer:
 
         # This list could be configurable in the future
         known_types = ['text', 'SchemaGroupsForVehicle', 'SchemaGroup', 'TecData', 'Vehicle']
-        
+
         for data_type in known_types:
             if data_type in key_list:
                 result = data_type
@@ -38,7 +39,7 @@ class DataAnalyzer:
             json_file_content = json.load(json_file)
 
         if node not in json_file_content:
-             raise ValueError(f"Node '{node}' not found in {json_file_name}")
+            raise ValueError(f"Node '{node}' not found in {json_file_name}")
 
         needed_node = json_file_content[node]
         columns = needed_node.get('Columns', {})

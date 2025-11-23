@@ -1,13 +1,15 @@
 import json
-import boto3
-from botocore.config import Config
-from botocore.exceptions import ClientError
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Tuple, Optional, Dict, Any
 
-from multi_data_manager.core.logger import logger
+import boto3
+from botocore.config import Config
+from botocore.exceptions import ClientError
+
 from multi_data_manager.core.constants import MAX_WORKERS
+from multi_data_manager.core.logger import logger
 from multi_data_manager.utils.data_preparer import DataPreparer
+
 
 class S3Handler:
     """
@@ -26,6 +28,7 @@ class S3Handler:
         """
         Uploads multiple JSON files to an S3 bucket concurrently.
         """
+
         def upload_file(file_content, file_name):
             self.put_json(file_content, target_s3_bucket, f'{s3_prefix}/{file_name}')
 
@@ -44,8 +47,8 @@ class S3Handler:
         """
         # If target_object is not string/bytes, convert it
         if not isinstance(target_object, (str, bytes)):
-             target_object = self.data_preparer.prepare_json(target_object)
-             
+            target_object = self.data_preparer.prepare_json(target_object)
+
         self.s3.put_object(Bucket=bucket_name, Key=object_key, Body=target_object)
 
     def get_json(self, bucket_name: str, object_key: str) -> Optional[Dict]:
