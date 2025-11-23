@@ -11,6 +11,12 @@ class DataCleaner:
     def cleanup_string(text: Optional[str]) -> Optional[str]:
         """
         Remove all special characters and spaces from the text.
+
+        Args:
+            text (Optional[str]): The input text to be cleaned.
+
+        Returns:
+            Optional[str]: The cleaned text with only alphanumeric characters, or None if input is None or results in an empty string.
         """
         if text is None:
             return None
@@ -23,6 +29,12 @@ class DataCleaner:
     def remove_brackets(text: Optional[str]) -> Optional[str]:
         """
         Remove characters between brackets from the text.
+
+        Args:
+            text (Optional[str]): The input text to be processed.
+
+        Returns:
+            Optional[str]: The text with bracketed content removed, or None if input is None or results in an empty string.
         """
         if text is None:
             return None
@@ -35,6 +47,12 @@ class DataCleaner:
     def get_between_brackets(text: Optional[str]) -> Optional[str]:
         """
         Get content inside brackets from the text.
+
+        Args:
+            text (Optional[str]): The input text to be processed.
+
+        Returns:
+            Optional[str]: The content inside brackets, or None if input is None or no brackets found
         """
         if text is None:
             return None

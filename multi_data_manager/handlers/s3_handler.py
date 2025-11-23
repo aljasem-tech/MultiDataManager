@@ -19,6 +19,9 @@ class S3Handler:
     def __init__(self, max_pool_connections: int = 100):
         """
         Initializes the S3Handler class and configures the boto3 client.
+
+        Args:
+            max_pool_connections (int): Maximum number of connections in the connection pool.
         """
         config = Config(max_pool_connections=max_pool_connections)
         self.s3 = boto3.client('s3', config=config)
@@ -27,6 +30,12 @@ class S3Handler:
     def upload_all_to_s3(self, s3_files: List[Tuple[str, Any]], target_s3_bucket: str, s3_prefix: str):
         """
         Uploads multiple JSON files to an S3 bucket concurrently.
+
+        Args:
+            s3_files (List[Tuple[str, Any]]): A list of tuples containing file
+                names and their corresponding JSON-serializable objects.
+            target_s3_bucket (str): The target S3 bucket name.
+            s3_prefix (str): The S3 prefix (folder path) where files will be uploaded.
         """
 
         def upload_file(file_content, file_name):
@@ -44,6 +53,11 @@ class S3Handler:
     def put_json(self, target_object: Any, bucket_name: str, object_key: str):
         """
         Uploads a JSON object to an S3 bucket.
+
+        Args:
+            target_object (Any): The JSON-serializable object to upload.
+            bucket_name (str): The target S3 bucket name.
+            object_key (str): The S3 object key (file path) where the object will be uploaded.
         """
         # If target_object is not string/bytes, convert it
         if not isinstance(target_object, (str, bytes)):
@@ -54,6 +68,13 @@ class S3Handler:
     def get_json(self, bucket_name: str, object_key: str) -> Optional[Dict]:
         """
         Downloads a JSON object from an S3 bucket.
+
+        Args:
+            bucket_name (str): The S3 bucket name.
+            object_key (str): The S3 object key (file path) to download.
+
+        Returns:
+            Optional[Dict]: The JSON object if the download is successful, None otherwise.
         """
         try:
             response = self.s3.get_object(Bucket=bucket_name, Key=object_key)
@@ -68,5 +89,10 @@ class S3Handler:
     def download_file(self, bucket_name: str, object_key: str, file_path: str):
         """
         Downloads a file from an S3 bucket to a local file path.
+
+        Args:
+            bucket_name (str): The S3 bucket name.
+            object_key (str): The S3 object key (file path) to download.
+            file_path (str): The local file path where the file will be saved.
         """
         self.s3.download_file(bucket_name, object_key, file_path)

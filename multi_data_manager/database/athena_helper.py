@@ -15,6 +15,13 @@ class AthenaHelper:
     DB_AWS_CLI = 'aws_cli'
 
     def __init__(self, db_type: str, connection_info: Any):
+        """
+        Initialize the AthenaHelper with database type and connection information.
+
+        Args:
+            db_type (str): Type of the database ('athena' or 'aws_cli').
+            connection_info (Any): Connection information object with necessary attributes.
+        """
         self.db_type = db_type
         self.connection_info = connection_info
         self.connection = None
@@ -24,6 +31,12 @@ class AthenaHelper:
         self.close_connection()
 
     def get_connection(self):
+        """
+        Get the current database connection.
+
+        Returns:
+            The database connection object.
+        """
         if not self.connection:
             self._establish_connection()
         return self.connection
@@ -47,6 +60,9 @@ class AthenaHelper:
             raise DatabaseError(f"Connection failed: {e}")
 
     def close_connection(self):
+        """
+        Close the database connection.
+        """
         if self.connection:
             try:
                 if self.db_type == self.DB_ATHENA:
@@ -58,6 +74,13 @@ class AthenaHelper:
     def execute_query(self, query: str, params: Optional[Union[List, Tuple]] = None) -> Optional[List[Any]]:
         """
         Execute a query on Athena.
+
+        Args:
+            query (str): The SQL query to execute.
+            params (Optional[Union[List, Tuple]]): Optional parameters for the query.
+
+        Returns:
+            Optional[List[Any]]: The result rows from the query, if any.
         """
         if self.db_type != self.DB_ATHENA:
             raise DatabaseError("execute_query is only supported for Athena in this helper.")

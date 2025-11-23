@@ -1,7 +1,7 @@
 import functools
 import time
 from contextlib import contextmanager
-from typing import Optional, Any, List, Union, Tuple
+from typing import Optional, Any, List, Union, Tuple, Dict
 
 import mysql.connector
 import pandas as pd
@@ -11,7 +11,6 @@ from sqlalchemy import create_engine
 
 from multi_data_manager.core.exceptions import DatabaseError
 from multi_data_manager.core.logger import logger
-from multi_data_manager.utils.data_analyzer import DataAnalyzer
 
 
 def retry_on_lock_error(retries=3, delay=2):
@@ -46,6 +45,13 @@ class SQLHelper:
     DB_SQL_SERVER = 'sql_server'
 
     def __init__(self, db_type: str, connection_info: Any):
+        """
+        Initializes the SQLHelper with the specified database type and connection information.
+
+        Args:
+            db_type (str): Type of the database ('mysql' or 'sql_server').
+            connection_info (Any): Connection information object containing host, username, password, and database.
+        """
         self.db_type = db_type
         self.connection_info = connection_info
         self.connection = None
@@ -55,12 +61,20 @@ class SQLHelper:
         self.close_connection()
 
     def get_connection(self):
+        """
+        Returns the active database connection, establishing it if necessary.
+        """
         if not self.connection:
             self._establish_connection()
         return self.connection
 
     @contextmanager
     def get_cursor(self):
+        """
+        Context manager for obtaining a database cursor.
+        Yields:
+            cursor: Database cursor object.
+        """
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -97,6 +111,9 @@ class SQLHelper:
             raise DatabaseError(f"Connection failed: {e}")
 
     def close_connection(self):
+        """
+        Closes the database connection if it is open.
+        """
         if self.connection:
             try:
                 if self.db_type == self.DB_MYSQL and self.connection.is_connected():
@@ -110,6 +127,18 @@ class SQLHelper:
     @retry_on_lock_error()
     def execute_query(self, query: str, params: Optional[Union[List, Tuple]] = None, execute_many: bool = False,
                       batch_size: int = 100000) -> Optional[List[Any]]:
+        """
+        Executes a SQL query with optional parameters.
+
+        Args:
+            query (str): The SQL query to execute.
+            params (Optional[Union[List, Tuple]]): Parameters for the SQL query.
+            execute_many (bool): Whether to execute many queries with the provided params.
+            batch_size (int): Batch size for executing many queries.
+
+        Returns:
+            Optional[List[Any]]: Fetched rows if the query returns results, else None.
+        """
         rows = None
         try:
             with self.get_cursor() as cursor:
@@ -136,23 +165,42 @@ class SQLHelper:
         return rows
 
     @retry_on_lock_error()
-    def create_table(self, table_name: str, json_file_name: str, node: str):
+    def create_table(self, table_name: str, columns: Dict[str, str], indexes: Optional[List[str]] = None):
+        """
+        Creates a table with the specified columns and indexes.
+
+        Args:
+            table_name (str): Name of the table to create.
+            columns (Dict[str, str]): Dictionary of column names and their SQL types.
+            indexes (Optional[List[str]]): List of column names to index.
+        """
         try:
             with self.get_cursor() as cursor:
                 cursor.execute(f'DROP TABLE IF EXISTS `{table_name}`;')
 
-                table_columns, table_indexes = DataAnalyzer.extract_table_info(json_file_name, node)
-                needed_columns = ', '.join([f'{col} {col_type}' for col, col_type in table_columns.items()])
-                needed_indexes = ', '.join([f'INDEX ({index})' for index in table_indexes]) if table_indexes else ''
+                needed_columns = ', '.join([f'{col} {col_type}' for col, col_type in columns.items()])
+                needed_indexes = ', '.join([f'INDEX ({index})' for index in indexes]) if indexes else ''
 
                 query = f'CREATE TABLE `{table_name}` ({needed_columns}' + (
                     f', {needed_indexes}' if needed_indexes else '') + ');'
                 cursor.execute(query)
+                logger.info(f"Table {table_name} created successfully.")
         except Exception as e:
             logger.error(f"Error creating table {table_name}: {e}")
             raise DatabaseError(f"Create table failed: {e}")
 
     def query_to_dataframe(self, query: str, params=None, dtype=None) -> pd.DataFrame:
+        """
+        Executes a SQL query and returns the result as a pandas DataFrame.
+
+        Args:
+            query (str): The SQL query to execute.
+            params: Optional parameters for the SQL query.
+            dtype: Optional data types for the DataFrame columns.
+
+        Returns:
+            pd.DataFrame: Resulting DataFrame from the query.
+        """
         try:
             # Construct connection string for SQLAlchemy
             if self.db_type == self.DB_MYSQL:
@@ -169,6 +217,15 @@ class SQLHelper:
             raise DatabaseError(f"DataFrame conversion failed: {e}")
 
     def dataframe_to_table(self, df: pd.DataFrame, table_name: str, if_exists: str = 'replace', index: bool = False):
+        """
+        Saves a pandas DataFrame to a SQL table.
+
+        Args:
+            df (pd.DataFrame): DataFrame to save.
+            table_name (str): Name of the target table.
+            if_exists (str): Behavior if the table already exists ('fail', 'replace', 'append').
+            index (bool): Whether to write DataFrame index as a column.
+        """
         try:
             # Using SQLAlchemy engine for pandas to_sql
             if self.db_type == self.DB_MYSQL:

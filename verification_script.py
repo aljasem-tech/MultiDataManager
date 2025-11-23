@@ -37,7 +37,6 @@ try:
 
     print("Importing utils...")
     from multi_data_manager.utils.data_cleaner import DataCleaner
-    from multi_data_manager.utils.data_analyzer import DataAnalyzer
     from multi_data_manager.utils.docs_generator import DocumentationGenerator
     from multi_data_manager.utils.custom_encoder import CustomEncoder
     from multi_data_manager.utils.data_preparer import DataPreparer

@@ -15,6 +15,13 @@ class APIHandler:
     def invoke_api(api_url: str, auth_token: str) -> Dict[str, Any]:
         """
         Invokes an API endpoint with the provided authentication token.
+
+        Args:
+            api_url (str): The URL of the API endpoint.
+            auth_token (str): The authentication token for the API.
+
+        Returns:
+            Dict[str, Any]: The JSON response from the API.
         """
         try:
             headers = {

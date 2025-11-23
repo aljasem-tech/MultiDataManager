@@ -17,6 +17,14 @@ class FileHandler:
     def export_to_json(json_object: Any, file_name: str, indent: int = 2) -> str:
         """
         Exports a JSON object to a file with the specified indentation.
+
+        Args:
+            json_object (Any): The JSON-serializable object to export.
+            file_name (str): The target file path where the JSON will be saved.
+            indent (int): The number of spaces for indentation in the JSON file.
+
+        Returns:
+            str: The JSON string that was written to the file.
         """
         os.makedirs(os.path.dirname(file_name), exist_ok=True)
 
@@ -29,6 +37,12 @@ class FileHandler:
     def export_all(self, targeted_files: List[Tuple[str, Any]], source_folder: str, object_data_type: str):
         """
         Exports multiple JSON objects to file concurrently.
+
+        Args:
+            targeted_files (List[Tuple[str, Any]]): A list of tuples containing file names
+                and their corresponding JSON-serializable objects.
+            source_folder (str): The base folder where files will be saved.
+            object_data_type (str): A subfolder name to categorize the files.
         """
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             futures = []

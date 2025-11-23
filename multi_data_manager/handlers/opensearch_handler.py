@@ -27,6 +27,18 @@ class OpensearchHandler:
 
     def __init__(self, host: str, index: str, role_arn: str, region: str = 'eu-central-1', timeout: int = 30,
                  pool_maxsize: int = 20, pool_connections: int = 20):
+        """
+        Initialize the OpensearchHandler with connection parameters.
+
+        Args:
+            host (str): The OpenSearch host URL.
+            index (str): The default index name.
+            role_arn (str): The AWS IAM Role ARN for authentication.
+            region (str): The AWS region.
+            timeout (int): The timeout for OpenSearch requests.
+            pool_maxsize (int): The maximum size of the connection pool.
+            pool_connections (int): The number of connection pools to cache.
+        """
         if self._initialized:
             return
 
@@ -73,6 +85,12 @@ class OpensearchHandler:
         """
         Uploads multiple documents to the OpenSearch index in dynamically sized batches.
         documents must be a dict where the keys are the document IDs.
+
+        Args:
+            documents (Dict): A dictionary of documents to upload, with document IDs as keys.
+            index (Optional[str]): The target index name. Defaults to the instance's index.
+            recreate_index (bool): Whether to recreate the index before uploading.
+            max_size_mb (int): The maximum size of each batch in megabytes.
         """
         max_size_bytes = max_size_mb * 1024 * 1024
         total_success, total_failed = 0, 0
@@ -118,6 +136,14 @@ class OpensearchHandler:
                 logger.info(f'Total bulk insert completed. Success: {total_success}, Failed: {total_failed}')
 
     def create_index(self, index_name: str, number_of_shards: int = 1, number_of_replicas: int = 1):
+        """
+        Creates a new OpenSearch index with specified settings. If the index already exists, it will be deleted first.
+
+        Args:
+            index_name (str): The name of the index to create.
+            number_of_shards (int): The number of primary shards for the index.
+            number_of_replicas (int): The number of replica shards for the index.
+        """
         try:
             if self.es.indices.exists(index=index_name):
                 self.es.indices.delete(index=index_name)
@@ -139,6 +165,17 @@ class OpensearchHandler:
 
     def query_index(self, query_body: Dict, index: Optional[str] = None, params: Optional[Dict] = None) -> Union[
         List[Dict], Any]:
+        """
+        Queries the OpenSearch index with the provided query body.
+
+        Args:
+            query_body (Dict): The query body for the search.
+            index (Optional[str]): The target index name. Defaults to the instance's index.
+            params (Optional[Dict]): Additional parameters for the search request.
+
+        Returns:
+            Union[List[Dict], Any]: The list of documents matching the query or the full response if params are provided.
+        """
         try:
             index = index or self.index
             response = self.es.search(index=index, body=query_body, params=params)
@@ -152,6 +189,16 @@ class OpensearchHandler:
             return []
 
     def scroll(self, scroll_id: str, scroll: str = '2m') -> Dict:
+        """
+        Continues scrolling through search results using the provided scroll ID.
+
+        Args:
+            scroll_id (str): The scroll ID from the previous search response.
+            scroll (str): The scroll duration to keep the search context alive.
+
+        Returns:
+            Dict: The scroll response containing the next batch of results.
+        """
         try:
             return self.es.scroll(scroll_id=scroll_id, scroll=scroll)
         except Exception as e:
@@ -159,6 +206,18 @@ class OpensearchHandler:
             return {}
 
     def update_document(self, object_id: str, field_name: str, new_value: Any, index: Optional[str] = None) -> bool:
+        """
+        Updates a specific field in a document identified by its ID.
+
+        Args:
+            object_id (str): The ID of the document to update.
+            field_name (str): The field name to update.
+            new_value (Any): The new value to set for the field.
+            index (Optional[str]): The target index name. Defaults to the instance's index.
+
+        Returns:
+            bool: True if the update was successful, False otherwise.
+        """
         try:
             index = index or self.index
             response = self.es.update(
@@ -172,6 +231,16 @@ class OpensearchHandler:
             return False
 
     def get_document(self, object_id: str, index: Optional[str] = None) -> Optional[Dict]:
+        """
+        Retrieves a document by its ID from the specified index.
+
+        Args:
+            object_id (str): The ID of the document to retrieve.
+            index (Optional[str]): The target index name. Defaults to the instance's index.
+
+        Returns:
+            Optional[Dict]: The document source if found, None otherwise.
+        """
         try:
             index = index or self.index
             response = self.es.get(index=index, id=object_id)
@@ -182,6 +251,18 @@ class OpensearchHandler:
 
     def get_documents_fields(self, object_ids: List[str], fields: List[str], index: Optional[str] = None,
                              size: int = 10000) -> Dict[int, Dict]:
+        """
+        Retrieves specific fields for multiple documents identified by their IDs.
+
+        Args:
+            object_ids (List[str]): A list of document IDs to retrieve.
+            fields (List[str]): A list of fields to retrieve from each document.
+            index (Optional[str]): The target index name. Defaults to the instance's index.
+            size (int): The maximum number of documents to retrieve.
+
+        Returns:
+            Dict[int, Dict]: A dictionary mapping document IDs to their corresponding field data.
+        """
         try:
             index = index or self.index
             response = self.es.search(

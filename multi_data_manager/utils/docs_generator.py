@@ -12,6 +12,14 @@ class DocumentationGenerator:
     """
 
     def __init__(self, root_dir: str, destination_dir: str, read_me_path: str = 'README.md'):
+        """
+        Initializes the DocumentationGenerator class.
+
+        Args:
+            root_dir (str): The root directory to scan for Python files.
+            destination_dir (str): The directory where the generated docs will be saved.
+            read_me_path (str): The path to the README file to copy to the docs directory
+        """
         self.root_dir = root_dir
         self.destination_dir = destination_dir
         self.read_me_path = read_me_path
